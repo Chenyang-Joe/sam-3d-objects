@@ -2,6 +2,7 @@ __pycache__
 *.rerun
 *.glb
 *.ply
+*.pkl
 animal_sequence_rerun_example/
 checkpoints/
 notebook/results
