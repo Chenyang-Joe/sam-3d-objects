@@ -1,1 +1,7 @@
 __pycache__
+*.rerun
+*.glb
+*.ply
+animal_sequence_rerun_example/
+checkpoints/
+notebook/results

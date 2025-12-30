@@ -187,10 +187,16 @@ class SceneVisualizer:
                 colors, device=points_local.device
             )
 
+        # print("in object pointcloud")
+        # print("rotation (quat):", quat_l2c)
+        # print("translation:", trans_l2c)
+        # print("scale:", scale_l2c)
+
         R_l2c = quaternion_to_matrix(quat_l2c)
         l2c_transform = compose_transform(
             scale=scale_l2c, rotation=R_l2c, translation=trans_l2c
         )
+        print(f"the pre-calcaulted matrix is {l2c_transform.get_matrix()}")
         points_world = l2c_transform.transform_points(points_local)
         return Pointclouds(points=points_world, features=colors)
 

@@ -294,6 +294,12 @@ def make_scene(*outputs, in_place=False):
             minimum_kernel_size,
             output["gaussian"][0].mininum_kernel_size,
         )
+# # export each gaussian separately
+#         current_gaussian = output["gaussian"][0]
+#         current_gaussian.save_ply(
+#             f"gaussians/multi/object_{len(all_outs)}.ply"
+#         )
+
         all_outs.append(output)
 
     # merge gaussians
