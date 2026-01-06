@@ -1,8 +1,8 @@
 import os
 import numpy as np
 
-animal_dir = "/local_data/cx2219/sam-3d-objects/notebook/results/animal_frames_1"
-output_file = "/local_data/cx2219/sam-3d-objects/notebook/results/animal_sequence_1.obj"
+animal_dir = "/scratch/cx2219/codebase/sam-3d-objects/notebook/results/animal_frames"
+output_file = "/scratch/cx2219/codebase/sam-3d-objects/notebook/results/animal_sequence.obj"
 
 # read all objs in animal_dir
 # combine them into a frame sequence (one obj per frame), which can be opened in blender

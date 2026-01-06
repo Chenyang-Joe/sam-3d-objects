@@ -19,7 +19,7 @@ def read_animal_pictures(raw_dir):
     for file_name in os.listdir(raw_dir):
         if file_name.endswith("_rgb.png"):
             image_paths.append(os.path.join(raw_dir, file_name))
-        elif file_name.endswith("_rgb_masked.png"):
+        elif file_name.endswith("_masked.png"):
             mask_paths.append(os.path.join(raw_dir, file_name))
 
     # sort in terms of int(lambda.split('_')[0])
@@ -39,18 +39,22 @@ def create_animated_glb(mesh_list):
     return scene
 
 
+if __name__ == "__main__":
+    os.environ["CUDA_VISIBLE_DEVICES"] = "6"
+    os.environ["GRADIO_TEMP_DIR"] = "/scratch/cx2219/gradio_temp"
 
-def generate_animal_mesh_sequence(inference, image_folder, save_folder):
+    PATH = os.getcwd()
+    TAG = "hf"
+    config_path = f"{PATH}/checkpoints/{TAG}/pipeline.yaml"
+    inference = Inference(config_path, compile=False)
 
-    animal_type = image_folder.split("/")[-2]
-    animal_id = image_folder.split("/")[-1]
-    save_folder = save_folder + f"{animal_type}/{animal_id}/"
-    if not os.path.exists(save_folder):
-        os.makedirs(save_folder)
-
+    image_folder = "/scratch/cx2219/animal4d/pack_data/deer/pictures/_0LBZdvCOU8_020_001"
+    save_folder = "/scratch/cx2219/codebase/sam-3d-objects/notebook/results/animal_frames/"
     if not os.path.exists(save_folder):
         os.makedirs(save_folder)
     image_paths, mask_paths = read_animal_pictures(image_folder)
+
+
 
     mesh_list = []
     # raw_data = []
@@ -61,12 +65,12 @@ def generate_animal_mesh_sequence(inference, image_folder, save_folder):
         outputs = inference(image, mask[0], seed=42)
 
         # need to convert tensors to cpu numpy for pickle
-        # data_to_save = {
-        #     "glb": outputs["glb"],
-        #     "translation": np.array(outputs["translation"].detach().cpu()),
-        #     "scale": np.array(outputs["scale"].detach().cpu()),
-        #     "rotation": np.array(outputs["rotation"].detach().cpu()),
-        # }
+        data_to_save = {
+            "glb": outputs["glb"],
+            "translation": np.array(outputs["translation"].detach().cpu()),
+            "scale": np.array(outputs["scale"].detach().cpu()),
+            "rotation": np.array(outputs["rotation"].detach().cpu()),
+        }
 
         # raw_data.append(data_to_save)
 
@@ -84,21 +88,13 @@ def generate_animal_mesh_sequence(inference, image_folder, save_folder):
         # Convert from z-up to y-up: rotate around x-axis by -90 degrees
         points_pytorch = points_pytorch @ torch.tensor([[1, 0, 0], [0, 0, -1], [0, 1, 0]], device=points_pytorch.device, dtype=points_pytorch.dtype).T
         points_world = tfm.transform_points(points_pytorch)
-
         vertices = points_world.cpu().numpy()
+
         z_lower_bounding = np.min(vertices[:, 2])
         vertices[:, 2] -= z_lower_bounding
-
-
         mesh_now.vertices = vertices
 
-
-
-
-
         mesh_list.append(mesh_now)
-        # if I want to save texture, do I use obj or ply or glb?
-        # answer: 
         mesh_now.export(save_folder+os.path.basename(example_image_path).replace("_rgb.png", "_align.glb"))
 
 
@@ -106,20 +102,3 @@ def generate_animal_mesh_sequence(inference, image_folder, save_folder):
     # pickle.dump(raw_data, open("animal_raw_data.pkl", "wb"))
     # aniamted_scene = create_animated_glb(mesh_list)
     # aniamted_scene.export("animal_animation.glb")
-
-
-if __name__ == "__main__":
-    os.environ["CUDA_VISIBLE_DEVICES"] = "6,7"
-    os.environ["GRADIO_TEMP_DIR"] = "/local_data/cx2219/gradio_temp"
-
-    PATH = os.getcwd()
-    TAG = "hf"
-    config_path = f"{PATH}/checkpoints/{TAG}/pipeline.yaml"
-    inference = Inference(config_path, compile=False)
-
-    animal_folder = "/mnt/NAS/home/cx2219/animal4d/preivew/cat"
-    animal_list = os.listdir(animal_folder)
-    for animal in animal_list:
-        image_folder = os.path.join(animal_folder, animal)
-        save_folder = "/local_data/cx2219/sam-3d-objects/notebook/results/"
-        generate_animal_mesh_sequence(inference, image_folder, save_folder)

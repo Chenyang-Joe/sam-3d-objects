@@ -1,8 +1,8 @@
 import os
 import numpy as np
 
-animal_dir = "/local_data/cx2219/sam-3d-objects/notebook/results/animal_frames_2"
-output_file = "/local_data/cx2219/sam-3d-objects/notebook/results/animal_frames_2.blend"
+animal_dir = "/scratch/cx2219/codebase/sam-3d-objects/notebook/results/animal_frames"
+output_file = "/scratch/cx2219/codebase/sam-3d-objects/notebook/results/animal_frames.blend"
 
 # read all glb files in animal_dir
 # combine them into a frame sequence (one glb per frame), which can be opened in blender
@@ -84,3 +84,4 @@ print("\nAnimation created successfully!")
 print(f"Blend file saved to: {output_file}")
 print(f"Total frames: {len(glb_files)}")
 print(f"\nTo view: blender {output_file}")
+
